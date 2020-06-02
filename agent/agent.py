@@ -15,7 +15,8 @@ class Agent:
         """
 
         # Population compartments
-        self.comps = np.array(compartments)  # S, E, I, R
+        S_0, E_0, I_0, R_0 = compartments
+        self.S, self.E, self.I, self.R = [S_0], [E_0], [I_0], [R_0]
 
         # Transition coefficients
         self.coefs = transitions  # Beta, Sigma, Gamma, Xi
@@ -28,6 +29,9 @@ class Agent:
         Serializes Agent instance to string.
         :return:
         """
+        pass
+
+    def get_history(self):
         pass
 
     def next(self):
@@ -46,15 +50,12 @@ class Agent:
         sigma = self.coefs[1]
         gamma = self.coefs[2]
 
-        mu = self.vitals[0]
-        nu = self.vitals[1]
-
         # Compute deltas
         deltas = np.array([
-            mu*N - nu*S - (beta*S*I / N),
-            (beta*S*I / N) - nu*E - sigma*E,
-            sigma*E - gamma*I - nu*I,
-            gamma*I - nu*R
+            S - (beta*S*I / N),
+            (beta*S*I / N) - sigma*E,
+            sigma*E - gamma*I,
+            gamma*I
         ])
 
         # Change population compartments
