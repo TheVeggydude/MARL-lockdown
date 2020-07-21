@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from agent.agent import Agent
-
 
 def params2str(params):
     alpha, beta, gamma, delta, rho = params
