@@ -33,14 +33,13 @@ def seir_model_with_measurements(init_vals, params, t):
 t_max = 200
 dt = .1
 t = np.linspace(0, t_max, int(t_max/dt) + 1)
-print(t)
 
 N = 10000
 init_vals = 1 - 1/N, 1/N, 0, 0, 0
-alpha = 0.2
-beta = 1.75
-gamma = 0.5
-delta = 0.2
+alpha = 0.2  # exposure rate
+beta = 1.75   # Measure of time to infection once exposed
+gamma = 0.5  # Rate of recovery
+delta = 0    # Rate at which loss of immunity occurs.
 rho = 1
 
 params = alpha, beta, gamma, delta, rho
