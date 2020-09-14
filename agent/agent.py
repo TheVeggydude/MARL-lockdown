@@ -64,20 +64,3 @@ class Agent:
 
         next_state = State(next_S, next_E, next_I, next_R)
         self.__history.append(next_state)
-
-
-if __name__ == '__main__':
-    a = 0.2
-    b = 1.75
-    g = 0.5
-    d = 0.2
-    r = 1
-
-    initial_state = State(0.99, 0, 0.01, 0)
-    initial_params = Parameters(a, b, d, g, r)
-    test = Agent(initial_state, initial_params)
-
-    for _ in range(2000):
-        test.iterate()
-
-    print(test.history())
