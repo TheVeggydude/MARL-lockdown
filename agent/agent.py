@@ -75,6 +75,9 @@ if __name__ == '__main__':
 
     initial_state = State(0.99, 0, 0.01, 0)
     initial_params = Parameters(a, b, d, g, r)
-
     test = Agent(initial_state, initial_params)
-    test.iterate()
+
+    for _ in range(2000):
+        test.iterate()
+
+    print(test.history())
