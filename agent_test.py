@@ -13,7 +13,7 @@ g = 0.5   # Rate of recovery
 d = 0     # Rate at which loss of immunity occurs.
 r = 1     # Cost level??
 
-initial_state = State(0.99, 0, 0.01, 0)
+initial_state = State(0.99, 0, 0.01, 0, 1000)
 initial_params = Parameters(a, b, g, d, r)
 test = Agent(initial_state, initial_params)
 
