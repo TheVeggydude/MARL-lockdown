@@ -73,3 +73,23 @@ class Agent:
 
         next_state = State(next_S, next_E, next_I, next_R, N)
         self.__history.append(next_state)
+
+    def emigrate(self, fraction):
+        """
+        Generates a State, describing a population slice. This population slice is then deducted from the Agent's
+        population pool.
+        :param fraction: float in range 0.0 < x < 1.0 denoting what fraction of the population is emigrating.
+        """
+
+        if not 0.0 < fraction < 1.0:
+            raise ValueError("Emigration fraction not in valid range 0.0 < x < 1.0")
+
+        # Compute emigrant slice
+        S, E, I, R, N = self.__history[-1]
+        n_emigrants = int(N * fraction)  # int() floors/truncates the number.
+
+        # Update the current Agent's population count
+        new_state = State(S, E, I, R, N - n_emigrants)
+        self.set_state(new_state)
+
+        return State(S, E, I, R, n_emigrants)
