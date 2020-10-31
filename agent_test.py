@@ -14,13 +14,11 @@ d = 0     # Rate at which loss of immunity occurs.
 r = 1     # Cost level??
 
 initial_state = State(0.99, 0, 0.01, 0)
-initial_params = Parameters(a, b, d, g, r)
+initial_params = Parameters(a, b, g, d, r)
 test = Agent(initial_state, initial_params)
 
 for _ in range(100):
     test.iterate()
-
-print(test.history())
 
 # Plot results
 plt.plot(test.history()[:, :4])
