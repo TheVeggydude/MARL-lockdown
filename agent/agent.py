@@ -93,3 +93,26 @@ class Agent:
         self.set_state(new_state)
 
         return State(S, E, I, R, n_emigrants)
+
+    def immigrate(self, immigration_slice):
+
+        # Get immigrant data
+        n_im = immigration_slice.N
+        distribution_im = np.asarray(immigration_slice)[:4]
+
+        # Get local data
+        n_local = self.__history[-1].N
+        distribution_local = np.asarray(self.__history[-1])[:4]
+
+        # Compute new local distribution
+        distribution_post = np.add(distribution_im * n_im, distribution_local * n_local) / (n_im + n_local)
+
+        # Replace the current state with a state that includes the new immigration
+        state_post = State(
+            distribution_post[0],
+            distribution_post[1],
+            distribution_post[2],
+            distribution_post[3],
+            n_im + n_local
+        )
+        self.__history[-1] = state_post
