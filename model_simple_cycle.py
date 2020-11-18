@@ -21,7 +21,7 @@ def plot_agent_history(curr_agent):
     plt.plot(curr_agent.history()[:, :4])
 
     # Add information
-    plt.title(f"History comparison for {curr_agent.name}")
+    plt.title(f"History for {curr_agent.name}")
     plt.ylabel("Population fraction")
     plt.xlabel("Time (days)")
     plt.legend(['Susceptible', 'Exposed', 'Infected', 'Recovered'])
@@ -60,7 +60,6 @@ for _ in range(80):
         # Perform migration
         migration = agent.emigrate(0.02)
         agents[next_index].immigrate(migration)
-    exit()
 
     # Iterate the agents, which now includes the migrated population.
     for agent in agents:
