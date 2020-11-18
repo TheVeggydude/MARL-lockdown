@@ -24,9 +24,10 @@ def validate_state(candidate):
 
 class Agent:
 
-    def __init__(self, state, params):
+    def __init__(self, name, state, params):
         validate_state(state)
 
+        self.name = name
         self.__history = [state]
         self.__parameters = params
 
