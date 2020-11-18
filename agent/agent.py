@@ -63,7 +63,7 @@ class Agent:
         """
 
         S, E, I, R, N = self.__history[-1]
-        a, b, d, g, r = self.__parameters
+        a, b, g, d, r = self.__parameters
 
         next_S = S - (r * b * S * I) + (d * R)  # Add fraction of recovered compartment.
         next_E = E + (r * b * S * I - a * E)
