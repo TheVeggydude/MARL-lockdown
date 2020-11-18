@@ -1,10 +1,6 @@
 from agent.agent import Agent, State, Parameters
 from matplotlib import pyplot as plt
-
-
-def params2str(params):
-    alpha, beta, gamma, delta, rho = params
-    return f"alpha: {alpha}, beta: {beta}, gamma: {gamma}, delta {delta}, rho: {rho}"
+from utils.strconv import params2str
 
 
 a = 0.2   # exposure rate
@@ -25,18 +21,8 @@ agent_c = Agent(init_agent_c, initial_params)
 agents = [agent_a, agent_b, agent_c]
 
 print(f"Agent a initial: {init_agent_a}")
-# print(f"Agent b initial: {init_agent_b}")
-# print(f"Agent c initial: {init_agent_c}")
-
-# # take 2% of the population from agent a
-# migration = agent_a.emigrate(0.02)
-# print(f"Migration from a to b: {migration}")
-#
-# # and put it in agent b's population
-# agent_b.immigrate(migration)
-#
-# print(f"Agent a post migration: {agent_a.state()}")
-# print(f"Agent b post migration: {agent_b.state()}")
+print(f"Agent b initial: {init_agent_b}")
+print(f"Agent c initial: {init_agent_c}")
 
 # Simulate for 100 iterations
 for _ in range(100):
@@ -52,12 +38,3 @@ for _ in range(100):
     # Iterate the agents, which now includes the migrated population.
     for agent in agents:
         agent.iterate()
-
-# Plot results
-plt.plot(agent_a.history()[:, :4])
-plt.title(f"SEIR model ({params2str(initial_params)})")
-plt.ylabel("Population fraction")
-plt.xlabel("Time (Days)")
-plt.legend(['Susceptible', 'Exposed', 'Infected', 'Recovered'])
-plt.savefig(f"results/test_agent.png")
-plt.show()
