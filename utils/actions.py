@@ -1,11 +1,13 @@
-from enum import Enum, unique
+
+__actions = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
 
 
-@unique
-class Action(Enum):
-    level_0 = 1.0
-    level_1 = 0.8
-    level_2 = 0.6
-    level_3 = 0.4
-    level_4 = 0.2
-    level_5 = 0.0
+def get_n_actions():
+    return len(__actions)
+
+
+def action_level(level):
+    if level < 0 or level >= len(__actions):
+        raise ValueError("Containment level should be > 0 and < " + str(len(__actions)))
+
+    return __actions[level]
