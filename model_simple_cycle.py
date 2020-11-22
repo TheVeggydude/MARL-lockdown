@@ -1,4 +1,5 @@
-from agent.agent import Agent, State, Parameters
+from agent.agent import Agent
+from utils.state import State, Parameters
 from utils.plotting import plot_agent_history, plot_compartment_comparison
 
 

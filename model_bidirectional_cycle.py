@@ -1,4 +1,5 @@
-from agent.agent import Agent, State, Parameters
+from agent.agent import Agent
+from utils.state import State, Parameters
 from utils.plotting import plot_agent_history, plot_compartment_comparison
 
 
@@ -37,7 +38,6 @@ for _ in range(80):
     # Now also do it in reverse order
     for index, agent in enumerate(agents):
         next_index = index - 1 if index - 1 >= 0 else len(agents) - 1
-
 
         # Perform migration
         migration = agent.emigrate(0.02)
