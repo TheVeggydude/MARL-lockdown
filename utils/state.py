@@ -42,4 +42,4 @@ def compute_reward(state):
     """
     Computes a reward valuation for a given state.
     """
-    
+    pass
