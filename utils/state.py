@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-
 State = namedtuple("State", ["S", "E", "I", "R", "N"])
 Parameters = namedtuple("Parameters", ["a", "b", "d", "g", "r"])
 
@@ -21,7 +20,26 @@ def validate_state(candidate):
             raise ValueError("Value(s) in state parameter invalid, should be >=0. Please check contents.")
 
 
-def discretize_state(original):
+def discretize_state(cont_state):
     """
-    Floors each state compartment to the nearest 5% mark
+    Discretizes a state by converting the state to an int that reflects the unique state. This is done by flooring the
+    compartments after multiplying them by 100 to convert them to percentages.
+    :return: An Int denoting the discretized state - which corresponds to one of the input nodes of the NN
     """
+
+    discr_state = State(
+        int(cont_state.S * 100),
+        int(cont_state.E * 100),
+        int(cont_state.I * 100),
+        int(cont_state.R * 100),
+        cont_state.N
+    )
+
+    return discr_state
+
+
+def compute_reward(state):
+    """
+    Computes a reward valuation for a given state.
+    """
+    
