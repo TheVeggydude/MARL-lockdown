@@ -27,6 +27,9 @@ def discretize_state(cont_state):
     :return: An Int denoting the discretized state - which corresponds to one of the input nodes of the NN
     """
 
+    if not validate_state(cont_state):
+        raise ValueError("Please provide a valid state for discretizing.")
+
     discr_state = State(
         int(cont_state.S * 100),
         int(cont_state.E * 100),
@@ -42,4 +45,8 @@ def compute_reward(state):
     """
     Computes a reward valuation for a given state.
     """
+
+    if not validate_state(state):
+        raise ValueError("Please provide a valid state for reward calculation.")
+
     pass
