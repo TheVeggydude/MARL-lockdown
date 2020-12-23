@@ -1,4 +1,5 @@
-from agent.agent import Agent, State, Parameters
+from agent.agent import Agent
+from utils.state import State, Parameters
 from matplotlib import pyplot as plt
 from utils.strconv import params2str
 
@@ -6,13 +7,13 @@ from utils.strconv import params2str
 a = 0.2   # exposure rate
 b = 1.75  # Measure of time to infection once exposed
 g = 0.5   # Rate of recovery
-d = 0     # Rate at which loss of immunity occurs.
-r = 1     # Cost level??
+d = 0.4     # Rate at which loss of immunity occurs.
+r = 0.5     # Cost level??
 
-init_agent_a = State(0.99, 0, 0.01, 0, 10000)
+init_agent_a = State(0.6, 0, 0.4, 0, 10000)
 
 initial_params = Parameters(a, b, g, d, r)
-agent_a = Agent(init_agent_a, initial_params)
+agent_a = Agent('test', init_agent_a, initial_params)
 
 print(f"Agent a initial: {init_agent_a}")
 # print(f"Agent b initial: {init_agent_b}")
