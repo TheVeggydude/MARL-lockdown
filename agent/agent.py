@@ -1,6 +1,7 @@
 import numpy as np
 
-from utils.state import State, validate_state
+from utils.state import State, validate_state, iterate, discretize
+from sys import maxsize
 
 
 class Agent:
@@ -11,6 +12,7 @@ class Agent:
         self.name = name
         self.__history = [state]
         self.__parameters = params
+        self.__learning_rate = 0.4
 
     def state(self):
         """
@@ -40,19 +42,10 @@ class Agent:
 
     def iterate(self):
         """
-        Performs one iteration of the model update loop.
-        :return:
+        Performs one iteration of the agent's state and appends it to the history, making it the new current state.
         """
 
-        S, E, I, R, N = self.__history[-1]
-        a, b, g, d, r = self.__parameters
-
-        next_S = S - (r * b * S * I) + (d * R)  # Add fraction of recovered compartment.
-        next_E = E + (r * b * S * I - a * E)
-        next_I = I + (a * E - g * I)
-        next_R = R + (g * I) - (d * R)  # Remove fraction of recovered compartment.
-
-        next_state = State(next_S, next_E, next_I, next_R, N)
+        next_state = iterate(self.__history[-1], self.__parameters)
         self.__history.append(next_state)
 
     def emigrate(self, fraction):
@@ -97,3 +90,36 @@ class Agent:
             n_im + n_local
         )
         self.__history[-1] = state_post
+
+    def compute_q_value(self):
+        q = self.compute_reward()
+
+        # Get the best
+
+    def compute_reward(self):
+        """
+        Computes a reward valuation for a given agent's current state.
+        """
+
+        if self.at_goal():
+            return maxsize - 1000 * (len(self.__history))
+
+        return 0
+
+    def at_goal(self):
+        """
+        The agent is in a goal state if an equilibrium is reached. In practice this means when 10 successive states
+        are (almost) equal to the current one.
+        """
+
+        curr_state = self.__history[-1]
+
+        for _ in range(9):
+            next_state = iterate(curr_state, self.__parameters)
+
+            if discretize(curr_state) != discretize(next_state):
+                return False
+
+            curr_state = next_state
+
+        return True
