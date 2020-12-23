@@ -1,6 +1,8 @@
 from collections import namedtuple
 
 State = namedtuple("State", ["S", "E", "I", "R", "N"])
+State.__eq__ = lambda x, y: x.S == y.S and x.E == y.E and x.I == y.I and x.R == y.R
+
 Parameters = namedtuple("Parameters", ["a", "b", "d", "g", "r"])
 
 
@@ -19,8 +21,10 @@ def validate_state(candidate):
         if value is None or value < 0:
             raise ValueError("Value(s) in state parameter invalid, should be >=0. Please check contents.")
 
+    return True
 
-def discretize_state(cont_state):
+
+def discretize(cont_state):
     """
     Discretizes a state by converting the state to an int that reflects the unique state. This is done by flooring the
     compartments after multiplying them by 100 to convert them to percentages.
@@ -41,12 +45,18 @@ def discretize_state(cont_state):
     return discr_state
 
 
-def compute_reward(state):
+def iterate(state, params):
     """
-    Computes a reward valuation for a given state.
+    Performs one iteration using the state-params combination.
+    :return: State namedtuple using
     """
 
-    if not validate_state(state):
-        raise ValueError("Please provide a valid state for reward calculation.")
+    S, E, I, R, N = state
+    a, b, g, d, r = params
 
-    pass
+    next_S = S - (r * b * S * I) + (d * R)  # Add fraction of recovered compartment.
+    next_E = E + (r * b * S * I - a * E)
+    next_I = I + (a * E - g * I)
+    next_R = R + (g * I) - (d * R)  # Remove fraction of recovered compartment.
+
+    return State(next_S, next_E, next_I, next_R, N)
