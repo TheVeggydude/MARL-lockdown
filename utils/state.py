@@ -45,6 +45,14 @@ def discretize(cont_state):
     return discr_state
 
 
+def to_simple_tuple(state):
+    """
+    Converts a state to a simple tuple, scrapping the population number.
+    :return: a tuple containing the state's SEIR compartments.
+    """
+    return state.S, state.E, state.I, state.R
+
+
 def iterate(state, params):
     """
     Performs one iteration using the state-params combination.
