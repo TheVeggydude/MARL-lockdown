@@ -1,70 +1,82 @@
 from collections import namedtuple
 
-State = namedtuple("State", ["S", "E", "I", "R", "N"])
-State.__eq__ = lambda x, y: x.S == y.S and x.E == y.E and x.I == y.I and x.R == y.R
-
 Parameters = namedtuple("Parameters", ["a", "b", "d", "g", "r"])
 
 
-def validate_state(candidate):
-    """
-    Validates the given input by checking the type and values of the input.
-    :param candidate: input to be checked - should be of type `State`
-    """
+class State:
 
-    # Check if actually a State namedtuple
-    if not isinstance(candidate, State):
-        raise TypeError("state parameter not namedtuple State")
+    def __init__(self, s, e, i, r, n):
+        """
+        Simply assign values when creating a State object
+        """
+        self.S = s
+        self.E = e
+        self.I = i
+        self.R = r
+        self.N = n
 
-    # Check if each value in state is valid
-    for value in candidate:
-        if value is None or value < 0:
-            raise ValueError("Value(s) in state parameter invalid, should be >=0. Please check contents.")
+    def __eq__(self, other):
+        return self.S == other.S and self.E == other.E and self.I == other.I and self.R == other.R
 
-    return True
+    def to_list(self):
+        return [
+            self.S,
+            self.E,
+            self.I,
+            self.R,
+            self.N,
+        ]
 
+    def is_valid(self):
+        """
+        Validates the given input by checking the type and values of the input.
+        :param self: input to be checked - should be of type `State`
+        """
 
-def discretize(cont_state):
-    """
-    Discretizes a state by converting the state params to ints. This is done by flooring the
-    compartments after multiplying them by 100 to convert them to percentages.
-    :return: A discretized State object
-    """
+        # Check if actually a State namedtuple
+        if not isinstance(self, State):
+            raise TypeError("state parameter not namedtuple State")
 
-    if not validate_state(cont_state):
-        raise ValueError("Please provide a valid state for discretizing.")
+        # Check if each value in state is valid
+        for value in self.to_list():
+            if value is None or value < 0:
+                raise ValueError("Value(s) in state parameter invalid, should be >=0. Please check contents.")
 
-    discr_state = State(
-        int(cont_state.S * 100),
-        int(cont_state.E * 100),
-        int(cont_state.I * 100),
-        int(cont_state.R * 100),
-        cont_state.N
-    )
+        return True
 
-    return discr_state
+    def make_discrete(self):
+        """
+        Discretizes a state by converting the state params to ints. This is done by flooring the
+        compartments after multiplying them by 100 to convert them to percentages.
+        :return: A discretized State object
+        """
 
+        if not self.is_valid():
+            raise ValueError("Please provide a valid state for discretizing.")
 
-def to_simple_tuple(state):
-    """
-    Converts a state to a simple tuple, scrapping the population number.
-    :return: a tuple containing the state's SEIR compartments.
-    """
-    return state.S, state.E, state.I, state.R
+        self.S = int(self.S * 100)
+        self.E = int(self.E * 100)
+        self.I = int(self.I * 100)
+        self.R = int(self.R * 100)
 
+    def iterate(self, params):
+        """
+        Performs one iteration using the state-params combination.
+        :return: State namedtuple using
+        """
 
-def iterate(state, params):
-    """
-    Performs one iteration using the state-params combination.
-    :return: State namedtuple using
-    """
+        # Split parameters for readability
+        S, E, I, R, N = self.to_list()
+        a, b, g, d, r = params
 
-    S, E, I, R, N = state
-    a, b, g, d, r = params
+        # Compute next values
+        next_S = S - (r * b * S * I) + (d * R)  # Add fraction of recovered compartment.
+        next_E = E + (r * b * S * I - a * E)
+        next_I = I + (a * E - g * I)
+        next_R = R + (g * I) - (d * R)  # Remove fraction of recovered compartment.
 
-    next_S = S - (r * b * S * I) + (d * R)  # Add fraction of recovered compartment.
-    next_E = E + (r * b * S * I - a * E)
-    next_I = I + (a * E - g * I)
-    next_R = R + (g * I) - (d * R)  # Remove fraction of recovered compartment.
-
-    return State(next_S, next_E, next_I, next_R, N)
+        # Update current values
+        self.S = next_S
+        self.E = next_E
+        self.I = next_I
+        self.R = next_R

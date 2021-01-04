@@ -1,9 +1,10 @@
 import numpy as np
 import random
 
-from utils.state import State, validate_state, iterate, discretize, to_simple_tuple
+from utils.state import State
 from utils.actions import num_actions, action_level
 from sys import maxsize
+from copy import deepcopy
 
 
 EPSILON = .1
@@ -12,7 +13,8 @@ EPSILON = .1
 class Agent:
 
     def __init__(self, name, state, params):
-        validate_state(state)
+        if not state.is_valid():
+            raise ValueError('Could not create Agent object - State invalid.')
 
         self.name = name
         self.__history = [state]
@@ -34,7 +36,8 @@ class Agent:
         :param state: State namedtuple.
         """
 
-        validate_state(state)
+        if not state.is_valid():
+            raise ValueError('Could not update State parameter - new State invalid.')
         self.__history[-1] = state
 
     def history(self):
@@ -51,8 +54,10 @@ class Agent:
         Performs one iteration of the agent's state and appends it to the history, making it the new current state.
         """
 
-        next_state = iterate(self.__history[-1], self.__parameters)
+        next_state = deepcopy(self.__history[-1]).iterate(self.__parameters)
         self.__history.append(next_state)
+
+        # TODO update with Q-learning
 
     def emigrate(self, fraction):
         """
@@ -65,7 +70,7 @@ class Agent:
             raise ValueError("Emigration fraction not in valid range 0.0 < x < 1.0")
 
         # Compute emigrant slice
-        S, E, I, R, N = self.__history[-1]
+        S, E, I, R, N = self.__history[-1].to_list()
         n_emigrants = int(N * fraction)  # int() floors/truncates the number.
 
         # Update the current Agent's population count
@@ -78,11 +83,11 @@ class Agent:
 
         # Get immigrant data
         n_im = immigration_slice.N
-        distribution_im = np.asarray(immigration_slice)[:4]
+        distribution_im = np.asarray(immigration_slice)[:-1]
 
         # Get local data
         n_local = self.__history[-1].N
-        distribution_local = np.asarray(self.__history[-1])[:4]
+        distribution_local = self.__history[-1].to_list()[:-1]
 
         # Compute new local distribution
         distribution_post = np.add(distribution_im * n_im, distribution_local * n_local) / (n_im + n_local)
@@ -116,7 +121,7 @@ class Agent:
         will create one with random values.
         :return: Int denoting the index in the Actions array, as found in `utils.actions`.
         """
-        state = to_simple_tuple(state)
+        state = tuple(state.to_list()[:-1])
         action_map = [random.random() for _ in range(num_actions())]  # init an action distribution map
 
         # Try to retrieve an existing action map
@@ -144,12 +149,13 @@ class Agent:
         are (almost) equal to the current one.
         """
 
-        curr_state = self.__history[-1]
+        curr_state = deepcopy(self.__history[-1]).make_discrete()
 
         for _ in range(9):
-            next_state = iterate(curr_state, self.__parameters)
+            next_state = deepcopy(curr_state)
+            next_state = next_state.iterate(self.__parameters)
 
-            if discretize(curr_state) != discretize(next_state):
+            if curr_state.make_discrete() != next_state.make_discrete():
                 return False
 
             curr_state = next_state
