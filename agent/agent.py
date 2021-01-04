@@ -1,7 +1,12 @@
 import numpy as np
+import random
 
-from utils.state import State, validate_state, iterate, discretize
+from utils.state import State, validate_state, iterate, discretize, to_simple_tuple
+from utils.actions import num_actions, action_level
 from sys import maxsize
+
+
+EPSILON = .1
 
 
 class Agent:
@@ -13,6 +18,7 @@ class Agent:
         self.__history = [state]
         self.__parameters = params
         self.__learning_rate = 0.4
+        self.state_action_map = {}
 
     def state(self):
         """
@@ -91,10 +97,36 @@ class Agent:
         )
         self.__history[-1] = state_post
 
-    def compute_q_value(self):
-        q = self.compute_reward()
+    def select_action(self, state=None):
+        if state is None:
+            state = self.__history[-1]
 
-        # Get the best
+        # pick random action as default
+        action = random.randint(0, num_actions() - 1)
+
+        # If not exploring, get the best action
+        if random.random() > EPSILON:
+            action = self.find_best_action(state)
+
+        return action
+
+    def find_best_action(self, state):
+        """
+        Given a state, will return the action with the highest Q-value in the state_action_map. If no map can be found,
+        will create one with random values.
+        :return: Int denoting the index in the Actions array, as found in `utils.actions`.
+        """
+        state = to_simple_tuple(state)
+        action_map = [random.random() for _ in range(num_actions())]  # init an action distribution map
+
+        # Try to retrieve an existing action map
+        try:
+            action_map = self.state_action_map[state]
+        except KeyError:
+            self.state_action_map[state] = action_map
+
+        # Return the index (a.k.a. the action) of the highest stored Q-value.
+        return action_map.index(max(action_map))
 
     def compute_reward(self):
         """
