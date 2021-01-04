@@ -26,9 +26,9 @@ def validate_state(candidate):
 
 def discretize(cont_state):
     """
-    Discretizes a state by converting the state to an int that reflects the unique state. This is done by flooring the
+    Discretizes a state by converting the state params to ints. This is done by flooring the
     compartments after multiplying them by 100 to convert them to percentages.
-    :return: An Int denoting the discretized state - which corresponds to one of the input nodes of the NN
+    :return: A discretized State object
     """
 
     if not validate_state(cont_state):
