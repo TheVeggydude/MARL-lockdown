@@ -1,12 +1,13 @@
 import numpy as np
 import random
 
-from utils.state import State, validate_state, iterate, discretize, to_simple_tuple
+from utils.state import Parameters, State, validate_state, iterate, discretize, to_simple_tuple
 from utils.actions import num_actions, action_level
 from sys import maxsize
 
 
 EPSILON = .1
+GAMMA = .1
 
 
 class Agent:
@@ -46,13 +47,8 @@ class Agent:
 
         return np.asarray(self.__history)
 
-    def iterate(self):
-        """
-        Performs one iteration of the agent's state and appends it to the history, making it the new current state.
-        """
-
-        next_state = iterate(self.__history[-1], self.__parameters)
-        self.__history.append(next_state)
+    def reset(self):
+        self.__history = []
 
     def emigrate(self, fraction):
         """
@@ -65,7 +61,7 @@ class Agent:
             raise ValueError("Emigration fraction not in valid range 0.0 < x < 1.0")
 
         # Compute emigrant slice
-        S, E, I, R, N = self.__history[-1]
+        S, E, I, R, N = self.state()
         n_emigrants = int(N * fraction)  # int() floors/truncates the number.
 
         # Update the current Agent's population count
@@ -82,7 +78,7 @@ class Agent:
 
         # Get local data
         n_local = self.__history[-1].N
-        distribution_local = np.asarray(self.__history[-1])[:4]
+        distribution_local = np.asarray(self.state())[:4]
 
         # Compute new local distribution
         distribution_post = np.add(distribution_im * n_im, distribution_local * n_local) / (n_im + n_local)
@@ -97,9 +93,42 @@ class Agent:
         )
         self.__history[-1] = state_post
 
+    def iterate(self):
+        """
+        Performs one iteration of the agent's state and appends it to the history, making it the new current state.
+        """
+
+        # Select action based on the current state using E-greedy
+        action = self.select_action()
+
+        # Perform action by setting the effectiveness level
+        self.__parameters = Parameters(
+            self.__parameters.a,
+            self.__parameters.b,
+            self.__parameters.d,
+            self.__parameters.g,
+            action_level(action)  # Get the value for the action
+        )
+
+        # And then go to the new state
+        next_state = iterate(self.state(), self.__parameters)
+        self.__history.append(next_state)
+
+        # Compute the new Q-value
+        simple_discrete_state = to_simple_tuple(discretize(self.state()))
+        reward = self.compute_reward()
+        next_best_action = self.find_best_action(self.state())
+        future_max_q_value = self.state_action_map[simple_discrete_state][next_best_action]
+
+        q_value = reward + GAMMA * future_max_q_value
+
+        # Update the old Q-value
+        simple_discrete_previous_state = to_simple_tuple(discretize(self.__history[-2]))
+        self.state_action_map[simple_discrete_previous_state][action] = q_value
+
     def select_action(self, state=None):
         if state is None:
-            state = self.__history[-1]
+            state = self.state()
 
         # pick random action as default
         action = random.randint(0, num_actions() - 1)
@@ -116,7 +145,7 @@ class Agent:
         will create one with random values.
         :return: Int denoting the index in the Actions array, as found in `utils.actions`.
         """
-        state = to_simple_tuple(state)
+        state = to_simple_tuple(discretize(state))
         action_map = [random.random() for _ in range(num_actions())]  # init an action distribution map
 
         # Try to retrieve an existing action map
@@ -144,7 +173,7 @@ class Agent:
         are (almost) equal to the current one.
         """
 
-        curr_state = self.__history[-1]
+        curr_state = self.state()
 
         for _ in range(9):
             next_state = iterate(curr_state, self.__parameters)
