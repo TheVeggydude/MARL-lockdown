@@ -36,7 +36,11 @@ class Agent:
         """
 
         validate_state(state)
-        self.__history[-1] = state
+
+        if len(self.__history) > 0:
+            self.__history[-1] = state
+        else:
+            self.__history.append(state)
 
     def history(self):
         """
@@ -173,9 +177,12 @@ class Agent:
         are (almost) equal to the current one.
         """
 
+        if len(self.__history) < 50:
+            return False
+
         curr_state = self.state()
 
-        for _ in range(9):
+        for _ in range(50):
             next_state = iterate(curr_state, self.__parameters)
 
             if discretize(curr_state) != discretize(next_state):

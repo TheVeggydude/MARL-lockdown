@@ -4,13 +4,13 @@ from matplotlib import pyplot as plt
 from utils.strconv import params2str
 
 
-a = 0.2   # exposure rate
-b = 1.75  # Measure of time to infection once exposed
-g = 0.5   # Rate of recovery
+a = 0.2     # exposure rate
+b = 1.75    # Measure of time to infection once exposed
+g = 0.5     # Rate of recovery
 d = 0.4     # Rate at which loss of immunity occurs.
-r = 0.5     # Cost level??
+r = 0.5     # Effectiveness of measures (range 0-1, lower is more effective)
 
-init_agent_a = State(0.6, 0, 0.4, 0, 10000)
+init_agent_a = State(0.99, 0, 0.01, 0, 10000)
 
 initial_params = Parameters(a, b, g, d, r)
 agent_a = Agent('test', init_agent_a, initial_params)
@@ -29,22 +29,34 @@ print(f"Agent a initial: {init_agent_a}")
 # print(f"Agent a post migration: {agent_a.state()}")
 # print(f"Agent b post migration: {agent_b.state()}")
 
-# Simulate for 100 iterations
-for _ in range(100):
-    agent_a.iterate()
-    print(agent_a.state())
+# Simulate for i iterations
+i = 1000
+print(f"Iterations remaining {i}")
 
-    # # Migration step, for a cyclic, one-directional graph
-    # for index, agent in enumerate(agents):
-    #     next_index = index+1 if index+1 < len(agents) else 0
-    #
-    #     # Perform migration
-    #     migration = agent.emigrate(0.02)
-    #     agents[next_index].immigrate(migration)
-    #
-    # # Iterate the agents, which now includes the migrated population.
-    # for agent in agents:
-    #     agent.iterate()
+iterations_list = []
+agent_iterations = 0
+
+while True:
+
+    agent_a.iterate()
+    agent_iterations += 1
+
+    # Explore until goal is found, then try again
+    if agent_a.at_goal():
+        i -= 1
+
+        # Train until done
+        if i == 0:
+            break
+
+        # Reset agent in when retraining
+        iterations_list.append(agent_iterations)
+        agent_iterations = 0
+        agent_a.reset()
+        agent_a.set_state(init_agent_a)
+        print(f"Iterations remaining {i}")
+
+print(f"Iterations over time: {iterations_list}")
 
 # Plot results
 plt.plot(agent_a.history()[:, :4])
