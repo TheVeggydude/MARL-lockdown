@@ -97,7 +97,7 @@ class Agent:
         )
         self.__history[-1] = state_post
 
-    def iterate(self):
+    def iterate_rl(self):
         """
         Performs one iteration of the agent's state and appends it to the history, making it the new current state.
         """
@@ -129,6 +129,10 @@ class Agent:
         # Update the old Q-value
         simple_discrete_previous_state = to_simple_tuple(discretize(self.__history[-2]))
         self.state_action_map[simple_discrete_previous_state][action] = q_value
+
+    def iterate(self):
+        next_state = iterate(self.state(), self.__parameters)
+        self.__history.append(next_state)
 
     def select_action(self, state=None):
         if state is None:

@@ -7,8 +7,8 @@ from utils.strconv import params2str
 a = 0.2     # exposure rate
 b = 1.75    # Measure of time to infection once exposed
 g = 0.5     # Rate of recovery
-d = 0.4     # Rate at which loss of immunity occurs.
-r = 0.5     # Effectiveness of measures (range 0-1, lower is more effective)
+d = 0.05     # Rate at which loss of immunity occurs.
+r = 0.4     # Effectiveness of measures (range 0-1, lower is more effective)
 
 init_agent_a = State(0.99, 0, 0.01, 0, 10000)
 
@@ -30,7 +30,7 @@ print(f"Agent a initial: {init_agent_a}")
 # print(f"Agent b post migration: {agent_b.state()}")
 
 # Simulate for i iterations
-i = 1000
+i = 1
 print(f"Iterations remaining {i}")
 
 iterations_list = []

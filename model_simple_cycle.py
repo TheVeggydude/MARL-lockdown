@@ -37,7 +37,7 @@ for _ in range(80):
 
     # Iterate the agents, which now includes the migrated population.
     for agent in agents:
-        agent.iterate()
+        agent.iterate_rl()
 
 plot_compartment_comparison(agents, 1, "Exposed")
 plot_compartment_comparison(agents, 2, "Infected")
